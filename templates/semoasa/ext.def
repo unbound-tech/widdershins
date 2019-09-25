@@ -1,8 +1,10 @@
 
 {{ for (var ext in data.ns) {
    var x = data.ns[ext];
-   var sample = x.example||data.utils.getSample(x.schema,data.options,{},data.api);
+   var sample = x.example||data.utils.getSample(x.schema,data.options,{quiet:true},data.api);
 }}
+
+{{= data.tags.section }}
 
 ## {{=ext}}
 > {{=ext}} example
@@ -10,7 +12,7 @@
 {{=JSON.stringify(sample,null,2)}}
 ```
 ```yaml
-{{=data.utils.yaml.safeDump(sample)}}
+{{=data.utils.yaml.stringify(sample)}}
 ```
 
 {{ if (x.provider && x.provider !== data.defaultProvider) { }}
@@ -63,3 +65,5 @@ This extension is deprecated and should be transitioned out of use.
 {{?}}
 
 {{ } }}
+
+{{= data.tags.endSection }}

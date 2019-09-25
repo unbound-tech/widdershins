@@ -5,8 +5,8 @@ var path = require('path');
 var util = require('util');
 
 var rf = require('node-readfiles');
-var yaml = require('js-yaml');
-var widdershins = require('./index.js');
+var yaml = require('yaml');
+var widdershins = require('./lib/index.js');
 
 var argv = require('yargs')
     .usage('testRunner [options] [{path-to-definitions}]')
@@ -80,7 +80,13 @@ function* check(file) {
 
     if ((filename.endsWith('yaml')) || (filename.endsWith('json'))) {
 
-        if ((file.indexOf('bungie')>=0) && (process.env.TRAVIS_NODE_VERSION)) {
+        let skip = false;
+        //if (process.env.TRAVIS_NODE_VERSION) {
+        //    if (file.indexOf('bungie')>=0) skip = true;
+        //    if file.indexOf('docusign')>=0) skip = true;
+        //}
+
+        if (skip) {
             console.log(yellow+file);
             console.log('Skipping due to size');
             genStackNext();
@@ -91,7 +97,7 @@ function* check(file) {
         var src;
         try {
             if (components[components.length-1].endsWith('.yaml')) {
-                src = yaml.safeLoad(srcStr);
+                src = yaml.parse(srcStr);
             }
             else {
                 src = JSON.parse(srcStr);
@@ -118,6 +124,7 @@ function* check(file) {
                 let message = '';
                 if (!result) result = '';
                 result = result.split('is undefined').join('x');
+                result = result.split('f undefined').join('x');
                 result = result.split('are undefined').join('x');
                 result = result.split('be undefined').join('x');
                 result = result.split('undefined to').join('x');
@@ -129,7 +136,11 @@ function* check(file) {
                 result = result.split('|undefined|[Empty]').join('x');
                 result = result.split('|undefined|').join('x');
                 result = result.split('efault: undefined').join('x');
+                result = result.split('": "undefined"').join('x');
                 result = result.split('"undefined",').join('x');
+                result = result.split('and undefined,').join('x');
+                result = result.split('otherwise undefined').join('x');
+                result = result.split("it's `undefined`").join('x');
                 if (ok && result.indexOf('undefined')>=0) {
                     message = 'Ok except for undefined references';
                     ok = false;
